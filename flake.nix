@@ -18,13 +18,13 @@
                 cli11
                 lief
                 elfio
-                libelf
+                elfutils # for libelf
             ];
             nativeBuildInputs = with pkgs; [
                 cmake
             ];
             shellHook = ''
-            export CPATH="${pkgs.lief}/include:${pkgs.elfio}/include:${pkgs.cli11}/include:${pkgs.libelf}/include"
+            export CPATH="${pkgs.lief}/include:${pkgs.elfio}/include:${pkgs.cli11}/include:${pkgs.elfutils.dev}/include"
             '';
         };
     };

@@ -12,8 +12,9 @@
 
 #include "benchmark/elfio.hpp"
 #include "benchmark/lief.hpp"
+#include "benchmark/libelf.hpp"
 
-enum class Libs { kELFIO, kLIEF };
+enum class Libs { kELFIO, kLIEF, kLibELF };
 
 namespace {
 
@@ -25,6 +26,8 @@ std::string_view to_string_view(Libs lib) {
         return "elfio"sv;
     case kLIEF:
         return "lief"sv;
+    case kLibELF:
+        return "libelf"sv;
     default:
         std::unreachable();
     }
@@ -41,7 +44,8 @@ int main(int argc, char **argv) try {
     std::filesystem::path file_name;
     app.add_option("input", file_name);
 
-    const std::map<std::string, Libs> kLibs{{"elfio", Libs::kELFIO}, {"lief", Libs::kLIEF}};
+    const std::map<std::string, Libs> kLibs{
+        {"elfio", Libs::kELFIO}, {"lief", Libs::kLIEF}, {"libelf", Libs::kLibELF}};
     Libs lib;
     app.add_option("--lib", lib)->transform(CLI::CheckedTransformer(kLibs))->required();
 
@@ -53,6 +57,8 @@ int main(int argc, char **argv) try {
             return std::make_unique<elf::ELFIOBenchmark>();
         case Libs::kLIEF:
             return std::make_unique<elf::LIEFBenchmark>();
+        case Libs::kLibELF:
+            return std::make_unique<elf::LibELFBenchmark>();
         default:
             std::unreachable();
         }

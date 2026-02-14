@@ -14,10 +14,11 @@ Benchmark::Result ELFIOBenchmark::run(const fs::path &path) const {
         return std::chrono::duration_cast<ms>(finish - start);
     }();
 
+    const auto copy = path_to_copy(path);
+
     auto save_time = [&] {
         auto start = std::chrono::high_resolution_clock::now();
-        std::cout << path_to_copy(path) << '\n';
-        elf.save(path_to_copy(path));
+        elf.save(copy);
         auto finish = std::chrono::high_resolution_clock::now();
         return std::chrono::duration_cast<ms>(finish - start);
     }();
