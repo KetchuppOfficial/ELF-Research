@@ -31,15 +31,15 @@ class FDWrapper final {
         : fd_{::open(path.c_str(), std::to_underlying(flags), static_cast<::mode_t>(perms))} {
         if (fd_ == kInvalidFD) {
             throw std::system_error{errno, std::system_category(),
-                                    std::format("could not open \'{}\'", path.native())};
+                                    std::format("could not open '{}'", path.native())};
         }
     }
 
     FDWrapper(const FDWrapper &) = delete;
     FDWrapper &operator=(const FDWrapper &) = delete;
 
-    FDWrapper(FDWrapper &&rhs) : fd_{std::exchange(rhs.fd_, kInvalidFD)} {}
-    FDWrapper &operator=(FDWrapper &&rhs) {
+    FDWrapper(FDWrapper &&rhs) noexcept : fd_{std::exchange(rhs.fd_, kInvalidFD)} {}
+    FDWrapper &operator=(FDWrapper &&rhs) noexcept {
         swap(rhs);
         return *this;
     }

@@ -1,4 +1,7 @@
 build*/
 .cache/
+.mypy_cache/
 .vscode/
 examples/
+.venv/
+tmp*/

@@ -2,109 +2,54 @@ cmake_minimum_required(VERSION 3.30)
 
 project(elf-research LANGUAGES CXX)
 
+if (${PROJECT_SOURCE_DIR} STREQUAL ${PROJECT_BINARY_DIR})
+    message(FATAL_ERROR "In-source build is forbidden")
+endif()
+
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Default build type" FORCE)
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+include(cmake/functions.cmake)
 
 find_package(LIEF REQUIRED)
 find_package(elfio REQUIRED)
 find_package(CLI11 REQUIRED)
+find_package(LLVM REQUIRED)
 
-add_library(utils INTERFACE)
-target_compile_features(utils INTERFACE cxx_std_23)
-target_sources(utils INTERFACE
-    FILE_SET HEADERS
-    BASE_DIRS include
-    FILES include/utils/fd_wrapper.hpp
+find_package(benchmark REQUIRED)
+
+add_library(options INTERFACE)
+target_compile_features(options INTERFACE cxx_std_26)
+target_compile_options(options
+INTERFACE
+    $<$<CXX_COMPILER_ID:MSVC>:/Wall>
+    $<$<CXX_COMPILER_ID:GNU,Clang>: -Wall -Wextra -pedantic>
+    $<$<CXX_COMPILER_ID:GNU>: -freflection>
 )
 
 add_library(common INTERFACE)
-target_compile_features(common INTERFACE cxx_std_23)
+target_link_libraries(common INTERFACE options)
 target_sources(common INTERFACE
     FILE_SET HEADERS
     BASE_DIRS include
     FILES include/common/libraries.hpp
 )
 
-add_library(libelf++ INTERFACE)
-target_compile_features(libelf++ INTERFACE cxx_std_23)
+add_library(utils INTERFACE)
+target_link_libraries(utils INTERFACE options)
 target_sources(utils INTERFACE
     FILE_SET HEADERS
     BASE_DIRS include
     FILES
-        include/libelf++/data.hpp
-        include/libelf++/elf.hpp
-        include/libelf++/header.hpp
-)
-target_link_libraries(libelf++
-INTERFACE
-    elf
-    utils
+        include/utils/fd_wrapper.hpp
+        include/utils/mmap_wrapper.hpp
 )
 
-add_library(generator
-    src/generator/elfio.cpp
-    src/generator/libelf.cpp
-)
-target_sources(generator INTERFACE
-    FILE_SET HEADERS
-    BASE_DIRS include
-    FILES
-        include/generator/elfio.hpp
-        include/generator/generator.hpp
-        include/generator/libelf.hpp
-        include/generator/lief.hpp
-)
-target_link_libraries(generator
-PRIVATE
-    libelf++
-    elfio::elfio
-    LIEF::LIEF
-)
+elf_install(common utils)
 
-add_executable(generator_exe src/generator/main.cpp)
-set_target_properties(generator_exe PROPERTIES OUTPUT_NAME generator)
-target_link_libraries(generator_exe
-PRIVATE
-    generator
-    common
-    CLI11::CLI11
-)
-
-add_library(benchmark
-    src/benchmark/elfio.cpp
-    src/benchmark/lief.cpp
-    src/benchmark/libelf.cpp
-)
-target_include_directories(benchmark PUBLIC include)
-target_sources(benchmark INTERFACE
-    FILE_SET HEADERS
-    BASE_DIRS include
-    FILES
-        include/benchmark/elfio.hpp
-        include/benchmark/benchmark.hpp
-        include/benchmark/libelf.hpp
-        include/benchmark/lief.hpp
-)
-target_link_libraries(benchmark
-PRIVATE
-    elfio::elfio
-    LIEF::LIEF
-    elf
-    utils
-)
-
-add_executable(benchmark_exe src/benchmark/main.cpp)
-target_link_libraries(benchmark_exe
-PRIVATE
-    benchmark
-    CLI11::CLI11
-)
-set_target_properties(benchmark_exe PROPERTIES OUTPUT_NAME benchmark)
-
-foreach(target generator benchmark)
-    target_compile_features(${target} PUBLIC cxx_std_23)
-    target_compile_options(${target}
-    PUBLIC
-        $<$<CXX_COMPILER_ID:MSVC>:/Wall>
-        $<$<CXX_COMPILER_ID:GNU,Clang>: -Wall -Wextra -pedantic>
-    )
-endforeach()
+add_subdirectory(libelf++)
+add_subdirectory(loader)
+add_subdirectory(generator)
