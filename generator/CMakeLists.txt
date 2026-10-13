@@ -48,4 +48,4 @@ PRIVATE
     benchmark::benchmark
 )
 
-elf_install(common generator generator_exe)
+elf_install(config generator generator_exe)

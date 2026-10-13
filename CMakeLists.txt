@@ -44,8 +44,10 @@ target_sources(utils INTERFACE
     FILE_SET HEADERS
     BASE_DIRS include
     FILES
+        include/utils/enum_support.hpp
         include/utils/fd_wrapper.hpp
         include/utils/mmap_wrapper.hpp
+        include/utils/range_map.hpp
 )
 
 elf_install(common utils)
