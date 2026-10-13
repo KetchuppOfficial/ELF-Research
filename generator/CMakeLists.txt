@@ -26,6 +26,7 @@ FILES
     include/generator/elfio.hpp
     include/generator/generator.hpp
     include/generator/libelf.hpp
+    include/generator/sections_content.hpp
 )
 target_link_libraries(generator
 PUBLIC
