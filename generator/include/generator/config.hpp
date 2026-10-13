@@ -1,5 +1,5 @@
-#ifndef INCLUDE_CONFIG_JSON_HPP
-#define INCLUDE_CONFIG_JSON_HPP
+#ifndef GENERATOR_INCLUDE_GENERATOR_CONFIG_HPP
+#define GENERATOR_INCLUDE_GENERATOR_CONFIG_HPP
 
 #include <cstddef>
 #include <string_view>
@@ -79,4 +79,4 @@ class Config final {
 
 } // namespace elf
 
-#endif // INCLUDE_CONFIG_JSON_HPP
+#endif // GENERATOR_INCLUDE_GENERATOR_CONFIG_HPP

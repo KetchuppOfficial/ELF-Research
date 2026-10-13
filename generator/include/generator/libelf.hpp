@@ -1,5 +1,5 @@
-#ifndef INCLUDE_GENERATOR_LIBELF_HPP
-#define INCLUDE_GENERATOR_LIBELF_HPP
+#ifndef GENERATOR_INCLUDE_GENERATOR_LIBELF_HPP
+#define GENERATOR_INCLUDE_GENERATOR_LIBELF_HPP
 
 #include "generator/generator.hpp"
 #include "generator/sections_content.hpp"
@@ -24,4 +24,4 @@ class LibELFGenerator final : public Generator {
 
 } // namespace elf
 
-#endif // INCLUDE_GENERATOR_LIBELF_HPP
+#endif // GENERATOR_INCLUDE_GENERATOR_LIBELF_HPP

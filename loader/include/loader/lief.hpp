@@ -1,5 +1,5 @@
-#ifndef INCLUDE_LOADER_LIEF_HPP
-#define INCLUDE_LOADER_LIEF_HPP
+#ifndef LOADER_INCLUDE_LOADER_LIEF_HPP
+#define LOADER_INCLUDE_LOADER_LIEF_HPP
 
 #include "loader/loader.hpp"
 
@@ -12,4 +12,4 @@ public:
 
 } // namespace
 
-#endif // INCLUDE_LOADER_LIEF_HPP
+#endif // LOADER_INCLUDE_LOADER_LIEF_HPP

@@ -1,5 +1,5 @@
-#ifndef INCLUDE_LOADER_LLVM_HPP
-#define INCLUDE_LOADER_LLVM_HPP
+#ifndef LOADER_INCLUDE_LOADER_LLVM_HPP
+#define LOADER_INCLUDE_LOADER_LLVM_HPP
 
 #include "loader/loader.hpp"
 
@@ -12,4 +12,4 @@ public:
 
 } // namespace
 
-#endif // INCLUDE_BENCHMARK_LLVM_HPP
+#endif // LOADER_INCLUDE_BENCHMARK_LLVM_HPP

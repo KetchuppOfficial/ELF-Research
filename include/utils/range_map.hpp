@@ -1,5 +1,5 @@
-#ifndef GENERATOR_INCLUDE_COMMON_RANGE_MAP_HPP
-#define GENERATOR_INCLUDE_COMMON_RANGE_MAP_HPP
+#ifndef INCLUDE_UTILS_RANGE_MAP_HPP
+#define INCLUDE_UTILS_RANGE_MAP_HPP
 
 #include <cstdint>
 #include <map>
@@ -22,4 +22,4 @@ using RangeMap = std::map<InclusiveRange, T, Compare>;
 
 } // namespace utils
 
-#endif // GENERATOR_INCLUDE_COMMON_RANGE_MAP_HPP
+#endif // INCLUDE_UTILS_RANGE_MAP_HPP

@@ -1,5 +1,5 @@
-#ifndef INCLUDE_LOADER_LIBELF_HPP
-#define INCLUDE_LOADER_LIBELF_HPP
+#ifndef LOADER_INCLUDE_LOADER_LIBELF_HPP
+#define LOADER_INCLUDE_LOADER_LIBELF_HPP
 
 #include "loader/loader.hpp"
 
@@ -17,4 +17,4 @@ private:
 
 } // namespace
 
-#endif // INCLUDE_LOADER_LIBELF_HPP
+#endif // LOADER_INCLUDE_LOADER_LIBELF_HPP

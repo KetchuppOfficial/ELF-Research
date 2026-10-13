@@ -1,5 +1,5 @@
-#ifndef INCLUDE_LIBELF_PLUS_PLUS_ERROR_HPP
-#define INCLUDE_LIBELF_PLUS_PLUS_ERROR_HPP
+#ifndef LIBELF_PLUS_PLUS_INCLUDE_LIBELF_PLUS_PLUS_ERROR_HPP
+#define LIBELF_PLUS_PLUS_INCLUDE_LIBELF_PLUS_PLUS_ERROR_HPP
 
 #include <system_error>
 
@@ -19,4 +19,4 @@ inline std::error_category &libelf_category() noexcept {
 
 } // namespace elf
 
-#endif // INCLUDE_LIBELF_PLUS_PLUS_ERROR_HPP
+#endif // LIBELF_PLUS_PLUS_INCLUDE_LIBELF_PLUS_PLUS_ERROR_HPP

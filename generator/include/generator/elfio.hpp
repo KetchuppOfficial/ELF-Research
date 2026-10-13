@@ -1,5 +1,5 @@
-#ifndef INCLUDE_GENERATOR_ELFIO_HPP
-#define INCLUDE_GENERATOR_ELFIO_HPP
+#ifndef GENERATOR_INCLUDE_GENERATOR_ELFIO_HPP
+#define GENERATOR_INCLUDE_GENERATOR_ELFIO_HPP
 
 #include <vector>
 
@@ -22,4 +22,4 @@ class ELFIOGenerator final : public Generator {
 
 } // namespace elf
 
-#endif // INCLUDE_GENERATOR_ELFIO_HPP
+#endif // GENERATOR_INCLUDE_GENERATOR_ELFIO_HPP

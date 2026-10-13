@@ -1,5 +1,5 @@
-#ifndef INCLUDE_LOADER_LOADER_HPP
-#define INCLUDE_LOADER_LOADER_HPP
+#ifndef LOADER_INCLUDE_LOADER_LOADER_HPP
+#define LOADER_INCLUDE_LOADER_LOADER_HPP
 
 #include <filesystem>
 
@@ -16,4 +16,4 @@ class Loader {
 
 } // namespace elf
 
-#endif // INCLUDE_LOADER_LOADER_HPP
+#endif // LOADER_INCLUDE_LOADER_LOADER_HPP

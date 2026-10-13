@@ -1,5 +1,5 @@
-#ifndef UTILS_INCLUDE_UTILS_FD_WRAPPER_HPP
-#define UTILS_INCLUDE_UTILS_FD_WRAPPER_HPP
+#ifndef INCLUDE_UTILS_FD_WRAPPER_HPP
+#define INCLUDE_UTILS_FD_WRAPPER_HPP
 
 #include <cstddef>
 #include <filesystem>
@@ -93,4 +93,4 @@ inline std::size_t write_all(FDWrapper &fd, unsigned char *data, std::size_t n,
 
 } // namespace utils
 
-#endif // UTILS_INCLUDE_UTILS_FD_WRAPPER_HPP
+#endif // INCLUDE_UTILS_FD_WRAPPER_HPP
