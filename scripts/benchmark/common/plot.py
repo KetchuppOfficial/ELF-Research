@@ -217,12 +217,12 @@ def plot_results(results, sizes, libraries, output_dir):
                     label=library,
                 )
 
-            ax.set_ylabel("Mean running time (ms)")
-            ax.set_xlabel("Size")
-            ax.set_title(f"{benchmark}: {operation}")
+            ax.set_xlabel("The number of sections", size=14)
+            ax.set_ylabel("Mean running time (ms)", size=14)
             ax.set_xticks(x)
-            ax.set_xticklabels(benchmark_sizes)
-            ax.legend(title="Library")
+            ax.tick_params(axis="y", labelsize=12)
+            ax.set_xticklabels(benchmark_sizes, fontsize=12)
+            ax.legend(title="Library", title_fontsize=14, fontsize=12)
             ax.grid(axis="y", linestyle="--", alpha=0.4)
 
             fig.tight_layout()
