@@ -40,6 +40,7 @@
                 ninja
                 clang-tools
                 jq
+                python314
             ];
             shellHook = ''
                 bash scripts/add_to_local_settings.sh ${pkgs.clang-tools}/bin/clangd
