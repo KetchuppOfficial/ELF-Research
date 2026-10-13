@@ -1,26 +1,14 @@
 #include <cstdint>
-#include <map>
 #include <ranges>
 #include <span>
 
 #include "generator/libelf.hpp"
-
 #include "libelf++/elf.hpp"
+#include "utils/range_map.hpp"
 
 namespace elf {
 
 void LibELFGenerator::generate(const std::filesystem::path &file_path) const {
-    struct InclusiveRange {
-        std::uint64_t start;
-        std::uint64_t size;
-    };
-
-    struct Compare {
-        bool operator()(const InclusiveRange &lhs, const InclusiveRange &rhs) const noexcept {
-            return lhs.start + lhs.size <= rhs.start;
-        }
-    };
-
     using enum utils::FDWrapper::Flags;
 
     constexpr auto kFlags = kWriteOnly | kCreate | kTruncate;
@@ -35,7 +23,7 @@ void LibELFGenerator::generate(const std::filesystem::path &file_path) const {
     header.set_machine(elf::Header::Machine::kX86_64);
     header.set_entry(config().entry_point());
 
-    std::map<InclusiveRange, const ::Elf64_Shdr *, Compare> section_addr_range_to_section;
+    utils::RangeMap<const ::Elf64_Shdr *> section_addr_range_to_section;
 
     auto data_offset = header.program_header_table_offset() +
                        header.program_header_size() * config().segments().size();
@@ -55,8 +43,8 @@ void LibELFGenerator::generate(const std::filesystem::path &file_path) const {
 
         data_offset += content.size();
 
-        section_addr_range_to_section.emplace(InclusiveRange{section_info.addr, section_info.size},
-                                              sec_header);
+        section_addr_range_to_section.emplace(
+            utils::InclusiveRange{section_info.addr, section_info.size}, sec_header);
     }
 
     auto segments = [&] {
@@ -74,8 +62,18 @@ void LibELFGenerator::generate(const std::filesystem::path &file_path) const {
         segment.p_memsz = segment_info.size;
         segment.p_align = 16;
 
-        auto *section = section_addr_range_to_section.at({segment_info.addr, 1});
-        segment.p_offset = section->sh_offset + (segment_info.addr - section->sh_addr);
+        segment.p_offset = [&] -> ::Elf64_Off {
+            auto [sec_begin, sec_end] =
+                section_addr_range_to_section.equal_range({segment_info.addr, segment_info.size});
+            if (sec_begin == sec_end) {
+                return 0;
+            } else {
+                const auto first_sec_offset = sec_begin->second->sh_offset;
+                const std::int64_t first_sec_addr = sec_begin->first.start;
+                const std::int64_t segment_addr = segment_info.addr;
+                return first_sec_offset + (segment_addr - first_sec_addr);
+            }
+        }();
     }
 
     elf.save();
