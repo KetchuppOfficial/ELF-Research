@@ -6,7 +6,7 @@
 #include <string_view>
 #include <type_traits>
 
-namespace elf {
+namespace utils {
 
 template <typename E,
           auto F = [](std::meta::info e) consteval { return std::meta::identifier_of(e); }>
@@ -52,6 +52,6 @@ static_assert([] consteval -> bool {
     }
 });
 
-} // namespace elf
+} // namespace utils
 
 #endif // INCLUDE_UTILS_ENUM_SUPPORT_HPP

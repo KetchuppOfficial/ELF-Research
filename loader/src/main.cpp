@@ -28,7 +28,7 @@ static constexpr auto kStringEnumPairs = [] consteval {
     template for (constexpr auto pair : std::define_static_array(
                       enumerators_of(^^E) | std::views::transform([](std::meta::info e) {
                           return std::pair{e, std::meta::reflect_constant_string(
-                                                  elf::identifier_of_google_enumerator(e))};
+                                                  utils::identifier_of_google_enumerator(e))};
                       }))) {
         res[i++] = {[:pair.second:], [:pair.first:]};
     }
