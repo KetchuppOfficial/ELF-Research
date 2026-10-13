@@ -1,6 +1,3 @@
-
-#!/usr/bin/env python3
-
 import argparse
 import json
 import re
@@ -9,7 +6,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 TIME_UNITS_TO_MS = {
     "ns": 1e-6,
     "us": 1e-3,
@@ -17,21 +13,24 @@ TIME_UNITS_TO_MS = {
     "s": 1e3,
 }
 
+STAGES = ("loader", "generator")
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description=(
-            "Plot Google Benchmark JSON results grouped by size and library."
-        )
+        description="Plot Google Benchmark JSON results grouped by size and library."
+    )
+    parser.add_argument(
+        "--stage",
+        choices=STAGES,
+        required=True,
+        help="Which benchmark stage to plot: reads <size>/<stage>/**/*.json",
     )
     parser.add_argument(
         "--results-root",
         type=Path,
         default=Path("benchmark"),
-        help=(
-            "Root directory containing <size>/generator/*.json "
-            "(default: benchmark)"
-        ),
+        help="Root directory containing <size>/<stage>/*.json (default: benchmark)",
     )
     parser.add_argument(
         "--output-dir",
@@ -58,18 +57,16 @@ def size_sort_key(size):
         return (1, size)
 
 
-def load_results(results_root):
+def load_results(results_root, stage):
     # results[benchmark][operation][size][library] = (mean_ms, stddev_ms)
     results = {}
     sizes = set()
     libraries = set()
 
-    json_files = sorted(results_root.glob("*/generator/**/*.json"))
+    json_files = sorted(results_root.glob(f"*/{stage}/**/*.json"))
 
     if not json_files:
-        raise RuntimeError(
-            f"No JSON files found under {results_root}/<size>/generator/"
-        )
+        raise RuntimeError(f"No JSON files found under {results_root}/<size>/{stage}/")
 
     for path in json_files:
         with path.open() as f:
@@ -98,7 +95,8 @@ def load_results(results_root):
         operation_names = {
             entry.get("run_name", entry["name"])
             for entry in entries
-            if entry.get("aggregate_name") not in (
+            if entry.get("aggregate_name")
+            not in (
                 "mean",
                 "stddev",
                 "median",
@@ -108,9 +106,7 @@ def load_results(results_root):
         }
 
         operation_names.update(
-            name
-            for name, stats in aggregates.items()
-            if "mean" in stats
+            name for name, stats in aggregates.items() if "mean" in stats
         )
 
         for name in operation_names:
@@ -122,11 +118,7 @@ def load_results(results_root):
                 mean = mean_entry["real_time"]
 
                 stddev_entry = stats.get("stddev")
-                stddev = (
-                    stddev_entry["real_time"]
-                    if stddev_entry is not None
-                    else 0.0
-                )
+                stddev = stddev_entry["real_time"] if stddev_entry is not None else 0.0
 
                 unit = mean_entry.get(
                     "time_unit",
@@ -154,29 +146,21 @@ def load_results(results_root):
                 }
 
                 if len(units) != 1:
-                    raise ValueError(
-                        f"Inconsistent time units for {name} in {path}"
-                    )
+                    raise ValueError(f"Inconsistent time units for {name} in {path}")
 
                 unit = units.pop()
                 values = [entry["real_time"] for entry in repetitions]
                 mean = float(np.mean(values))
-                stddev = (
-                    float(np.std(values, ddof=1))
-                    if len(values) > 1
-                    else 0.0
-                )
+                stddev = float(np.std(values, ddof=1)) if len(values) > 1 else 0.0
 
             if unit not in TIME_UNITS_TO_MS:
-                raise ValueError(
-                    f"Unsupported time unit {unit!r} in {path}"
-                )
+                raise ValueError(f"Unsupported time unit {unit!r} in {path}")
 
             factor = TIME_UNITS_TO_MS[unit]
 
-            results.setdefault(benchmark, {}).setdefault(
-                name, {}
-            ).setdefault(size, {})[library] = (
+            results.setdefault(benchmark, {}).setdefault(name, {}).setdefault(size, {})[
+                library
+            ] = (
                 mean * factor,
                 stddev * factor,
             )
@@ -202,9 +186,7 @@ def plot_results(results, sizes, libraries, output_dir):
 
     for benchmark, operations in sorted(results.items()):
         for operation, size_results in sorted(operations.items()):
-            benchmark_sizes = [
-                size for size in sizes if size in size_results
-            ]
+            benchmark_sizes = [size for size in sizes if size in size_results]
 
             if not benchmark_sizes:
                 continue
@@ -224,9 +206,7 @@ def plot_results(results, sizes, libraries, output_dir):
                     means.append(value[0] if value else np.nan)
                     errors.append(value[1] if value else 0.0)
 
-                offset = (
-                    i - (len(libraries) - 1) / 2
-                ) * width
+                offset = (i - (len(libraries) - 1) / 2) * width
 
                 ax.bar(
                     x + offset,
@@ -247,10 +227,7 @@ def plot_results(results, sizes, libraries, output_dir):
 
             fig.tight_layout()
 
-            filename = (
-                f"{safe_filename(benchmark)}_"
-                f"{safe_filename(operation)}.png"
-            )
+            filename = f"{safe_filename(benchmark)}_{safe_filename(operation)}.png"
             output = output_dir / filename
 
             fig.savefig(output, dpi=150)
@@ -262,7 +239,7 @@ def plot_results(results, sizes, libraries, output_dir):
 def main():
     args = parse_args()
 
-    results, sizes, libraries = load_results(args.results_root)
+    results, sizes, libraries = load_results(args.results_root, args.stage)
     plot_results(results, sizes, libraries, args.output_dir)
 
 
