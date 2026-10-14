@@ -8,6 +8,16 @@ from typing import Any, NoReturn
 
 MODES: list[str] = ["1xn", "nxn"]
 
+# fmt: off
+RELIABLE_PREFIX: list[str] = [
+    "sudo",
+    #
+    "ionice", "-c", "1", "-n", "0",
+    #
+    "nice", "-n", "-20",
+]
+# fmt: on
+
 
 def fail(message: str, code: int = 1) -> NoReturn:
     """Print an error message to stderr and exit with the given code."""

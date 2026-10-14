@@ -71,6 +71,12 @@ def parse_args() -> argparse.Namespace:
         metavar="LIB[,LIB...]",
         help="comma-separated list of libraries to measure, " "e.g. libelf,elfio",
     )
+    parser.add_argument(
+        "--reliable",
+        action="store_true",
+        help="run the generator under 'sudo ionice -c 1 -n 0 nice -n -20' "
+        "for more stable measurements (requires sudo); passed to measure.py",
+    )
     return parser.parse_args()
 
 
@@ -114,19 +120,21 @@ def main() -> None:
         for size_dir in find_size_dirs(tmp):
             elf = find_elfio_elf(size_dir)
 
-            utils.run(
-                [
-                    sys.executable,
-                    SCRIPTS_DIR / "measure.py",
-                    "--loader",
-                    loader,
-                    "--elf",
-                    elf,
-                    "--output-dir",
-                    size_dir,
-                    f"--libs={','.join(libs)}",
-                ]
-            )
+            measure_args: list[str | Path] = [
+                sys.executable,
+                SCRIPTS_DIR / "measure.py",
+                "--loader",
+                loader,
+                "--elf",
+                elf,
+                "--output-dir",
+                size_dir,
+                f"--libs={','.join(libs)}",
+            ]
+            if args.reliable:
+                measure_args.append("--reliable")
+
+            utils.run(measure_args)
 
         utils.run(
             [

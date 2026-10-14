@@ -54,6 +54,12 @@ def parse_args() -> argparse.Namespace:
         help="size of a single section, in hexadecimal (with or without "
         f"the 0x prefix); default: {DEFAULT_SECTION_SIZE}",
     )
+    parser.add_argument(
+        "--reliable",
+        action="store_true",
+        help="run the generator under 'sudo ionice -c 1 -n 0 nice -n -20' "
+        "for more stable measurements (requires sudo); passed to measure.py",
+    )
     return parser.parse_args()
 
 
@@ -106,25 +112,27 @@ def main() -> None:
                     "--section-size",
                     hex(section_size),
                     "--sections-count",
-                    size,
+                    str(size),
                     "--dir",
                     size_dir,
                 ]
             )
 
-            utils.run(
-                [
-                    sys.executable,
-                    SCRIPTS_DIR / "measure.py",
-                    "--generator",
-                    generator,
-                    "--output-dir",
-                    size_dir,
-                    "--config",
-                    size_dir / "config.json",
-                    f"--libs={','.join(libs)}",
-                ]
-            )
+            measure_args: list[str | Path] = [
+                sys.executable,
+                SCRIPTS_DIR / "measure.py",
+                "--generator",
+                generator,
+                "--output-dir",
+                size_dir,
+                "--config",
+                size_dir / "config.json",
+                f"--libs={','.join(libs)}",
+            ]
+            if args.reliable:
+                measure_args.append("--reliable")
+
+            utils.run(measure_args)
 
         utils.run(
             [

@@ -2,6 +2,9 @@ import argparse
 import os
 import pathlib
 import re
+import shutil
+import subprocess
+import sys
 
 from common import utils
 from pathlib import Path
@@ -56,7 +59,24 @@ def main() -> None:
         "--libs", help="libraries to run loader for", type=utils.str_list, required=True
     )
 
+    parser.add_argument(
+        "--reliable",
+        help=(
+            "run generator under 'sudo ionice -c 1 -n 0 nice -n -20' "
+            "for more stable measurements (requires sudo)"
+        ),
+        action="store_true",
+    )
+
     args = parser.parse_args()
+
+    if args.reliable:
+        if shutil.which("sudo") is None:
+            sys.exit("--reliable requires sudo, but it was not found in PATH")
+        # Ask for the password once up front, so it isn't requested mid-benchmark
+        # and doesn't distort the measurements.
+        if subprocess.run(["sudo", "-v"], check=False).returncode != 0:
+            sys.exit("--reliable requires sudo privileges")
 
     benchmark_common_args: list[str] = [
         "--benchmark_time_unit=ms",
@@ -68,6 +88,8 @@ def main() -> None:
 
     json_dir: pathlib.Path = args.output_dir / "loader"
     json_dir.mkdir(exist_ok=True)
+
+    command_prefix: list[str] = utils.RELIABLE_PREFIX if args.reliable else []
 
     sections_count: int = count_elf_sections(args.elf) - 2
 
@@ -85,7 +107,12 @@ def main() -> None:
         ]
 
         print(f"Running benchmark on {lib}")
-        utils.run(loader_args + benchmark_common_args + benchmark_specific_args)
+        utils.run(
+            command_prefix
+            + loader_args
+            + benchmark_common_args
+            + benchmark_specific_args
+        )
 
 
 if __name__ == "__main__":
