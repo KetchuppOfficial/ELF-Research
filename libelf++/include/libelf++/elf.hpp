@@ -85,14 +85,17 @@ class ELF final {
                 std::format("attempt to access segment with index {}/{}", index, segments_count)};
         }
 
+        // NOTE: This ordering of calls to get_raw_data() and elf64_getphdr() may reduce the number
+        // of calls to malloc()
+        auto *elf_data = get_raw_data();
         auto *program_header_table = ::elf64_getphdr(elf_);
-        return {reinterpret_cast<unsigned char *>(::elf_rawfile(elf_, nullptr)),
-                &program_header_table[index]};
+        return {elf_data, &program_header_table[index]};
     }
 
     std::ranges::view auto segments() const {
+        // See note above
+        auto *elf_data = get_raw_data();
         auto *program_header_table = ::elf64_getphdr(elf_);
-        auto *elf_data = reinterpret_cast<unsigned char *>(::elf_rawfile(elf_, nullptr));
         return std::views::iota(0uz, real_segments_count()) |
                std::views::transform(
                    [=](std::size_t i) { return Segment{elf_data, &program_header_table[i]}; });
@@ -199,6 +202,10 @@ class ELF final {
             return header;
         }
         throw std::system_error{::elf_errno(), libelf_category(), "elf64_newehdr"};
+    }
+
+    unsigned char *get_raw_data() const noexcept {
+        return reinterpret_cast<unsigned char *>(::elf_rawfile(elf_, nullptr));
     }
 
     ::Elf *elf_;
