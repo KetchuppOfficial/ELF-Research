@@ -101,13 +101,53 @@ class ELF final {
                    [=](std::size_t i) { return Segment{elf_data, &program_header_table[i]}; });
     }
 
-    std::ranges::view auto sections() const {
-        auto *elf_data = reinterpret_cast<unsigned char *>(::elf_rawfile(elf_, nullptr));
-        return std::views::iota(0uz, real_sections_count()) |
-               std::views::transform([elf = elf_, elf_data](std::size_t i) {
-                   auto *section_header = ::elf64_getshdr(::elf_getscn(elf, i));
-                   return Section{elf_data, section_header};
-               });
+    class SectionsIter final {
+      public:
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using value_type = Section;
+        using reference = Section;
+        using pointer = void;
+
+        SectionsIter() = default;
+        explicit SectionsIter(Elf *elf, Elf_Scn *section) noexcept
+            : elf_{elf}, elf_data_{reinterpret_cast<unsigned char *>(::elf_rawfile(elf, nullptr))},
+              section_{section} {}
+
+        Section operator*() const noexcept { return {elf_data_, ::elf64_getshdr(section_)}; }
+
+        SectionsIter &operator++() {
+            section_ = ::elf_nextscn(elf_, section_);
+            return *this;
+        }
+
+        SectionsIter operator++(int) {
+            auto tmp = *this;
+            ++(*this);
+            return tmp;
+        }
+
+        friend bool operator==(const SectionsIter &lhs, const SectionsIter &rhs) noexcept {
+            return lhs.section_ == rhs.section_;
+        }
+
+        friend bool operator==(const SectionsIter &iter,
+                               [[maybe_unused]] std::default_sentinel_t) noexcept {
+            return iter.section_ == nullptr;
+        }
+
+      private:
+        friend class SectionsSentinel;
+
+        Elf *elf_ = nullptr;
+        unsigned char *elf_data_ = nullptr;
+        Elf_Scn *section_ = nullptr;
+    };
+
+    std::ranges::sized_range auto sections() const {
+        return std::ranges::subrange<SectionsIter, std::default_sentinel_t,
+                                     std::ranges::subrange_kind::sized>{
+            SectionsIter{elf_, ::elf_nextscn(elf_, nullptr)}, {}, real_sections_count()};
     }
 
     template <typename Self>
@@ -212,6 +252,8 @@ class ELF final {
     utils::FDWrapper fd_;
     std::vector<Data> m_data_regions;
 };
+
+static_assert(std::forward_iterator<ELF::SectionsIter>);
 
 } // namespace elf
 
