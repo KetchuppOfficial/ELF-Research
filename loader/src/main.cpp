@@ -76,6 +76,8 @@ std::expected<Options, int> parse_options(int argc, char **argv) {
 } // unnamed namespace
 
 int main(int argc, char **argv) try {
+    benchmark::MaybeReenterWithoutASLR(argc, argv);
+
     std::expected options_or_error = parse_options(argc, argv);
     if (!options_or_error.has_value()) {
         return options_or_error.error();
