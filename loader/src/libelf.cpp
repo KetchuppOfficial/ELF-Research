@@ -13,20 +13,20 @@ void LibELFLoader::run(const fs::path &path) const {
     const auto elf =
         use_mmap_ ? elf::ELF{elf::ELF::UseMMap{}, path, kReadOnly} : elf::ELF{path, kReadOnly};
 
-    auto access_last_byte = [](auto content) {
-        if (!content.empty()) {
-            char c = content.back();
-            benchmark::DoNotOptimize(c);
-        }
+    auto access_last_bytes = []<std::ranges::range R>(R &&range) {
+        std::ranges::for_each(
+            std::forward<R>(range),
+            [](auto content) {
+                if (!content.empty()) {
+                    char c = content.back();
+                    benchmark::DoNotOptimize(c);
+                }
+            },
+            [](auto region) { return region.data(); });
     };
 
-    std::ranges::for_each(elf.segments() |
-                              std::views::transform([](elf::Segment seg) { return seg.data(); }),
-                          access_last_byte);
-
-    std::ranges::for_each(elf.sections() |
-                              std::views::transform([](elf::Section sec) { return sec.data(); }),
-                          access_last_byte);
+    access_last_bytes(elf.segments());
+    access_last_bytes(elf.sections());
 }
 
 } // namespace elf
