@@ -21,7 +21,7 @@ def main() -> None:
     )
     parser.add_argument("--dir", help="output directory", required=True)
     parser.add_argument(
-        "--mode", help="generation_mode", required=True, choices=["nxn", "1xn"]
+        "--mode", help="generation_mode", required=True, choices=utils.MODES
     )
 
     args = parser.parse_args()
