@@ -90,8 +90,7 @@ def main() -> None:
             args.loader,
             args.elf,
             "--lib",
-            lib,
-        ]
+        ] + ([lib] if lib != "libelf_with_mmap" else ["libelf", "--use-mmap"])
 
         benchmark_specific_args: list[str] = [
             f"--benchmark_out={json_dir}/{lib}.json",

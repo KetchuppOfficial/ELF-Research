@@ -10,8 +10,8 @@ import matplotlib
 
 matplotlib.use("Agg")  # works without a display (servers, CI)
 
-import matplotlib.pyplot as plt  # noqa: E402
-import numpy as np  # noqa: E402
+import matplotlib.pyplot as plt
+import numpy as np
 
 # --------------------------------------------------------------------------
 # Constants
@@ -32,8 +32,8 @@ AGGREGATES = {"mean", "stddev", "median", "cv", "median_abs_deviation"}
 # Styling
 LABEL_SIZE = 14
 TICK_SIZE = 12
-LEGEND_TITLE_SIZE = 14
-LEGEND_SIZE = 12
+LEGEND_TITLE_SIZE = 12
+LEGEND_SIZE = 10
 MIN_FIG_WIDTH = 10
 FIG_HEIGHT = 6
 GROUP_WIDTH = 0.8
@@ -189,7 +189,7 @@ def summarize(group, default_unit="ms"):
 def parse_data(data, size, fallback_library):
     """Parse the contents of one JSON file into a list of Records (no I/O)."""
     context = data.get("context", {})
-    library = str(context.get("library", fallback_library))
+    library = str(context.get("library", fallback_library)).replace("_", " ")
     benchmark = str(context.get("benchmark", "benchmark"))
     default_unit = context.get("time_unit", "ms")
 
@@ -264,9 +264,7 @@ def plot_operation(size_results, sizes, libraries, colors, args, output):
     """Draw and save a single plot (one operation)."""
     operation_sizes = [s for s in sizes if s in size_results]
     operation_libraries = [
-        lib
-        for lib in libraries
-        if any(lib in size_results[s] for s in operation_sizes)
+        lib for lib in libraries if any(lib in size_results[s] for s in operation_sizes)
     ]
     if not operation_sizes or not operation_libraries:
         return False
@@ -305,7 +303,12 @@ def plot_operation(size_results, sizes, libraries, colors, args, output):
     ax.set_xticks(x)
     ax.set_xticklabels(operation_sizes, fontsize=TICK_SIZE)
     ax.tick_params(axis="y", labelsize=TICK_SIZE)
-    ax.legend(title="Library", title_fontsize=LEGEND_TITLE_SIZE, fontsize=LEGEND_SIZE)
+    ax.legend(
+        title="Library",
+        title_fontsize=LEGEND_TITLE_SIZE,
+        fontsize=LEGEND_SIZE,
+        loc="upper left",
+    )
     ax.grid(axis="y", which="both", **GRID)
 
     fig.tight_layout()
