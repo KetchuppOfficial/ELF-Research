@@ -12,6 +12,8 @@ MODES: list[str] = ["1xn", "nxn"]
 RELIABLE_PREFIX: list[str] = [
     "sudo",
     #
+    "taskset", "-c", "0",
+    #
     "ionice", "-c", "1", "-n", "0",
     #
     "nice", "-n", "-20",
