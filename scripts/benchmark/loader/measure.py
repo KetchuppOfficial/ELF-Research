@@ -78,14 +78,6 @@ def main() -> None:
         if subprocess.run(["sudo", "-v"], check=False).returncode != 0:
             sys.exit("--reliable requires sudo privileges")
 
-    benchmark_common_args: list[str] = [
-        "--benchmark_time_unit=ms",
-        "--benchmark_repetitions=5",
-        "--benchmark_min_time=2x",
-        "--benchmark_enable_random_interleaving",
-        "--benchmark_out_format=json",
-    ]
-
     json_dir: pathlib.Path = args.output_dir / "loader"
     json_dir.mkdir(exist_ok=True)
 
@@ -110,7 +102,7 @@ def main() -> None:
         utils.run(
             command_prefix
             + loader_args
-            + benchmark_common_args
+            + utils.BENCHMARK_COMMON_ARGS
             + benchmark_specific_args
         )
 

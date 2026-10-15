@@ -18,6 +18,13 @@ RELIABLE_PREFIX: list[str] = [
 ]
 # fmt: on
 
+BENCHMARK_COMMON_ARGS: list[str] = [
+    "--benchmark_time_unit=ms",
+    "--benchmark_repetitions=5",
+    "--benchmark_enable_random_interleaving",
+    "--benchmark_out_format=json",
+]
+
 
 def fail(message: str, code: int = 1) -> NoReturn:
     """Print an error message to stderr and exit with the given code."""

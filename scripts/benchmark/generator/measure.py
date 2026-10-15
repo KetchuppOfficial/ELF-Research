@@ -58,14 +58,6 @@ def main() -> None:
         data = json.load(config)
         sections_count: int = len(data["sections"])
 
-    benchmark_common_args: list[str] = [
-        "--benchmark_time_unit=ms",
-        "--benchmark_repetitions=5",
-        "--benchmark_min_time=2x",
-        "--benchmark_enable_random_interleaving",
-        "--benchmark_out_format=json",
-    ]
-
     elf_dir: pathlib.Path = args.output_dir / "elfs"
     elf_dir.mkdir(parents=True, exist_ok=True)
 
@@ -94,7 +86,7 @@ def main() -> None:
         utils.run(
             command_prefix
             + generator_args
-            + benchmark_common_args
+            + utils.BENCHMARK_COMMON_ARGS
             + benchmark_specific_args
         )
 
